@@ -12,21 +12,17 @@ try:
         server_socket.listen()
         print("Listening on port", PORT)
 
-        conn_socket, client_addr = server_socket.accept()
-        client_host, client_port = client_addr
+        while True:
+            conn_socket, client_addr = server_socket.accept()
+            client_host, client_port = client_addr
 
-        print("Connected to client at", client_host, ",", client_port)
+            print("Connected to client at", client_host, ",", client_port)
 
-        # Use context manager, no need to call close()
-        with conn_socket:
-            while True:
+            # Use context manager, no need to call close()
+            with conn_socket:
                 received_data = conn_socket.recv(BUF_SIZE)
-
-                # Send back received data
-                if len(received_data) > 0:
-                    print("Sending back data")
-                    conn_socket.sendall(received_data)
-                    break
+                print("Sending back data")
+                conn_socket.sendall(received_data)
 
 except Exception as e:
     print("Exception occurred: ", e.args)
