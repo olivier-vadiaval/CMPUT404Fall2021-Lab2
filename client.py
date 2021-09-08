@@ -1,10 +1,10 @@
 import socket
 
 HOST = "www.google.com"
-PORT = "http"           # 80
+PORT = "http"
 address = (HOST, PORT)
 BUF_SIZE = 4096
-page_request = "GET / HTTP/1.1\r\nHost: %s\r\n\r\n" % HOST
+page_request = "GET / HTTP/1.0\r\nHost: %s\r\n\r\n" % HOST
 
 try:
     with socket.create_connection(address) as client_socket:
@@ -15,12 +15,12 @@ try:
         client_socket.sendall(page_request.encode())
         print('Request sent!')
 
-        data = ""
+        data = b""
         while True:
             received_data = client_socket.recv(BUF_SIZE)
             if not received_data:
                 break
-            data += received_data.decode()
+            data += received_data
 
         print('Received data, have a look:')
 
