@@ -9,6 +9,9 @@ BUF_SIZE = 4096
 
 try:
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
+        # Question 3
+        server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+
         server_socket.bind(address)
         server_socket.listen()
         print("Listening on port", PORT)
@@ -17,6 +20,7 @@ try:
             conn_socket, client_addr = server_socket.accept()
             client_host, client_port = client_addr
 
+            # Question 4
             print("Connected to client at", client_host, ",", client_port)
 
             # Use context manager, no need to call close()
