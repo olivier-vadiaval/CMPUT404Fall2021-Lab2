@@ -16,7 +16,7 @@ def main():
             print("Established connection with server!")
 
             while True:
-                # Send GET request
+                # Send a GET request
                 get_request = f"GET / HTTP/1.1\r\nHost: {GOOGLE}\r\n\r\n"
                 client_socket.sendall(get_request.encode()) 
                 response_data = client_socket.recv(BUF_SIZE)
