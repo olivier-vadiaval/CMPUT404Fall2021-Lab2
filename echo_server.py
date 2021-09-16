@@ -1,33 +1,37 @@
 #!/usr/bin/env python3
 import socket
 
-HOST = "127.0.0.1"  # localhost
-PORT = 8001
-address = (HOST, PORT)
+def main():
+    HOST = "localhost"  # localhost
+    PORT = 8001
+    address = (HOST, PORT)
 
-BUF_SIZE = 4096
+    BUF_SIZE = 4096
 
-try:
-    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
-        # Question 3
-        server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
+            # Question 3
+            server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
 
-        server_socket.bind(address)
-        server_socket.listen()
-        print("Listening on port", PORT)
+            server_socket.bind(address)
+            server_socket.listen()
+            print("Listening on port", PORT)
 
-        while True:
-            conn_socket, client_addr = server_socket.accept()
-            client_host, client_port = client_addr
+            while True:
+                conn_socket, client_addr = server_socket.accept()
+                client_host, client_port = client_addr
 
-            # Question 4
-            print("Connected to client at", client_host, ",", client_port)
+                # Question 4
+                print("Connected to client at", client_host, ",", client_port)
 
-            # Use context manager, no need to call close()
-            with conn_socket:
-                received_data = conn_socket.recv(BUF_SIZE)
-                print("Sending back data")
-                conn_socket.sendall(received_data)
+                # Use context manager, no need to call close()
+                with conn_socket:
+                    received_data = conn_socket.recv(BUF_SIZE)
+                    print("Sending back data")
+                    conn_socket.sendall(received_data)
 
-except Exception as e:
-    print("Exception occurred: ", e.args)
+    except Exception as e:
+        print("Exception occurred: ", e.args)
+
+if __name__ == "__main__":
+    main()

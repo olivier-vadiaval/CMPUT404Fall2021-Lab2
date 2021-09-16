@@ -1,32 +1,46 @@
 #!/usr/bin/env python3
 import socket
 
-HOST = "www.google.com"
-PORT = "http"
-address = (HOST, PORT)
-BUF_SIZE = 4096
-page_request = "GET / HTTP/1.0\r\nHost: %s\r\n\r\n" % HOST
+def get_remote_ip(hostname):
+    try:
+        return socket.gethostbyname(hostname)
+    
+    except (socket.gaierror, msg):
+        print("Exception occurred:", msg)
+    
+    except Exception as e:
+        print("Exception occurred", e.args)
 
-try:
-    with socket.create_connection(address) as client_socket:
-        # Using create_connection is equivalent to using the
-        # socket method and then using the connect method
-        print('Connection established')
-        
-        client_socket.sendall(page_request.encode())
-        print('Request sent!')
+def main():
+    HOST = "www.google.com"
+    PORT = "http"
+    address = (HOST, PORT)
+    BUF_SIZE = 4096
+    page_request = "GET / HTTP/1.0\r\nHost: %s\r\n\r\n" % HOST
 
-        data = b""
-        while True:
-            received_data = client_socket.recv(BUF_SIZE)
-            if not received_data:
-                break
-            data += received_data
+    try:
+        with socket.create_connection(address) as client_socket:
+            # Using create_connection is equivalent to using the
+            # socket method and then using the connect method
+            print('Connection established')
+            
+            client_socket.sendall(page_request.encode())
+            print('Request sent!')
 
-        print('Received data, have a look:')
+            data = b""
+            while True:
+                received_data = client_socket.recv(BUF_SIZE)
+                if not received_data:
+                    break
+                data += received_data
 
-        # Print response
-        print(data)
+            print('Received data, have a look:')
 
-except Exception as e:
-    print('Exception Occurred: ', e.args)
+            # Print response
+            print(data)
+
+    except Exception as e:
+        print('Exception Occurred: ', e.args)
+
+if __name__ == "__main__":
+    main()
