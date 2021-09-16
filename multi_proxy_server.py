@@ -4,28 +4,46 @@ import multiprocessing as mp
 
 BUF_SIZE = 4096
 
-def conn_handler(conn_socket, client_socket):
+def request_handler(intern_socket, extern_socket):
     try:
         while True:
             # Receive data from proxy client, forward to Google
-            client_data = conn_socket.recv(BUF_SIZE)
-            client_socket.sendall(client_data)
+            client_data = intern_socket.recv(BUF_SIZE)
+            if client_data:
+                extern_socket.sendall(client_data)
 
-            # Receive response from Google
-            response_data = client_socket.recv(BUF_SIZE)
+                # Receive response from Google
+                response_data = extern_socket.recv(BUF_SIZE)
 
-            # Forward response to proxy client
-            conn_socket.sendall(response_data)
-    
-    except BrokenPipeError:
-        print("Client closed connection! Closing socket!")
+                # Forward response to proxy client
+                intern_socket.sendall(response_data)
+            else:
+                break
 
-    except Exception as e:
-        print(type(e))
-        print("Exception occurred:", e.args)
+
+    except (socket.error, msg):
+        if client_data == b"":
+            print("Client disconnected!")
+        else:
+            print("Exception occurred:", msg)
 
     finally:
-        conn_socket.close()
+        
+        print("Closing connection")
+        intern_socket.close()
+        extern_socket.close()
+
+
+def get_remote_ip(hostname):
+    try:
+        return socket.gethostbyname(hostname)
+    
+    except (socket.gaierror, msg):
+        print("Exception occurred:", msg)
+    
+    except Exception as e:
+        print("Exception occurred", e.args)
+
 
 def main():
     EXTERN_HOST = "www.google.com"   # Google hostname
@@ -33,37 +51,44 @@ def main():
     PORT = 8001                 # port number
     address = (HOST, PORT)
 
+    extern_host_ip = get_remote_ip(EXTERN_HOST)
+
     try:
 
-        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as intern_socket:
             # Reuse port number
-            server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+            intern_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
 
-            server_socket.bind(address)
+            intern_socket.bind(address)
             print("Proxy server binded")
 
             print("Listening...")
-            server_socket.listen()
+            intern_socket.listen()
 
             while True:
-                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as client_socket:
-                    client_socket.connect((GOOGLE, 80))
-                    print("Connected to Google")
-                    conn_socket, client_addr = server_socket.accept()
+                conn_socket, client_addr = intern_socket.accept()   # accept connections
 
-                    client_host, client_port = client_addr
-                    print("Connected to client at", client_host, ",", client_port)
+                client_host, client_port = client_addr
+                print("Connected to client at", client_host, ",", client_port)
+                
+                with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as extern_socket:  
+                    extern_socket.connect((extern_host_ip, 80))     # connect to Google
+                    print("Connected to Google")
 
                     # Create Process object for new connection
                     new_conn = mp.Process(
-                            target=conn_handler, 
-                            args=(conn_socket, client_socket), 
-                            daemon=True
+                            target=request_handler, 
+                            args=(conn_socket, extern_socket)
                         )
+                    new_conn.daemon = True
                     
                     new_conn.start()    # fork
-
+                    
+                    print("New process started", new_conn)
                     print("Number of processes:", len(mp.active_children()))
+
+    except (socket.error, msg):
+        print("Exception occurred", msg)
 
     except Exception as e:
         print("Exception occurred", e.args)
