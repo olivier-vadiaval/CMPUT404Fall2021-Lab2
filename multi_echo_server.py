@@ -15,11 +15,11 @@ def request_handler(conn_socket):
             else:
                 break
 
-    except (socket.error, msg):
-        if client_data == b"":
+    except socket.error as e:
+        if received_data == b"":
             print("Client disconnected!")
         else:
-            print("Exception occurred:", msg)
+            print("Exception occurred:", e.args)
 
     except Exception as e:
         print("Exception occurred:", e.args)
@@ -37,7 +37,7 @@ def main():
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
             # Question 3
-            server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+            server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
             server_socket.bind(address)
             server_socket.listen()

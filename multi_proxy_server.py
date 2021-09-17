@@ -38,8 +38,8 @@ def get_remote_ip(hostname):
     try:
         return socket.gethostbyname(hostname)
     
-    except (socket.gaierror, msg):
-        print("Exception occurred:", msg)
+    except socket.gaierror as e:
+        print("Exception occurred:", e.args)
     
     except Exception as e:
         print("Exception occurred", e.args)
@@ -57,7 +57,7 @@ def main():
 
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as intern_socket:
             # Reuse port number
-            intern_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+            intern_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
             intern_socket.bind(address)
             print("Proxy server binded")

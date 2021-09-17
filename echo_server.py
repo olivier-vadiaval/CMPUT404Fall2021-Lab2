@@ -11,7 +11,7 @@ def main():
     try:
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as server_socket:
             # Question 3
-            server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEPORT, 1)
+            server_socket.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
             server_socket.bind(address)
             server_socket.listen()
