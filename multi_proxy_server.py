@@ -21,11 +21,11 @@ def request_handler(intern_socket, extern_socket):
                 break
 
 
-    except (socket.error, msg):
+    except socket.error as e:
         if client_data == b"":
             print("Client disconnected!")
         else:
-            print("Exception occurred:", msg)
+            print("Exception occurred:", e.args)
 
     finally:
         
@@ -87,8 +87,8 @@ def main():
                     print("New process started", new_conn)
                     print("Number of processes:", len(mp.active_children()))
 
-    except (socket.error, msg):
-        print("Exception occurred", msg)
+    except socket.error as e:
+        print("Exception occurred", e.args)
 
     except Exception as e:
         print("Exception occurred", e.args)

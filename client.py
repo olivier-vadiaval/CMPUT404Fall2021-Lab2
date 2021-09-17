@@ -5,8 +5,8 @@ def get_remote_ip(hostname):
     try:
         return socket.gethostbyname(hostname)
     
-    except (socket.gaierror, msg):
-        print("Exception occurred:", msg)
+    except socket.gaierror as e:
+        print("Exception occurred:", e.args)
     
     except Exception as e:
         print("Exception occurred", e.args)

@@ -47,21 +47,23 @@ def main():
 
                     while True:
                         # Receive data from proxy client, forward to Google
-                        client_data = intern_socket.recv(BUF_SIZE)
+                        client_data = conn_socket.recv(BUF_SIZE)
 
                         if client_data:
                             extern_socket.sendall(client_data)
 
                             # Receive response from Google
-                            response_data = intern_socket.recv(BUF_SIZE)
+                            response_data = extern_socket.recv(BUF_SIZE)
 
                             # Forward response to proxy client
-                            intern_socket.sendall(response_data)
+                            conn_socket.sendall(response_data)
                         else:
                             break
 
-    except (socket.error, msg):
-        print("Exception occurred", msg)
+                    conn_socket.close()
+
+    except socket.error as e:
+        print("Exception occurred", e.args)
 
     except Exception as e:
         print("Exception occurred", e.args)
